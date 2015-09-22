@@ -1,0 +1,44 @@
+{
+  "name": "gulp-inject-deps",
+  "version": "1.0.1",
+  "description": "Transfor your AMD dependences to inline variables",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elvinzhu/gulp-inject-deps.git"
+  },
+  "keywords": [
+    "gulp",
+    "inject",
+    "deps",
+    "dependence"
+  ],
+  "author": "elvinzhu",
+  "license": "MIT",
+    "dependencies": {
+    "through2": "^2.0.0",
+    "htmlclean": "^2.6.4",
+    "clean-css": "^3.4.4",
+    "escodegen": "^1.6.1",
+    "esprima": "^2.4.1",
+    "gulp-util": "^3.0.0"
+  },
+  "devDependencies": {
+    "through2": "^2.0.0",
+    "htmlclean": "^2.6.4",
+    "clean-css": "^3.4.4",
+    "escodegen": "^1.6.1",
+    "esprima": "^2.4.1",
+    "gulp-util": "^3.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/elvinzhu/gulp-inject-deps/issues"
+  },
+  "homepage": "https://github.com/elvinzhu/gulp-inject-deps#readme"
+}

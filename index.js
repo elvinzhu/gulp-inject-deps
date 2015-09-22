@@ -64,10 +64,10 @@ function buildDecExp ( name, value ){
     }
 };
 
-function logError ( msg ){
-    
-    gutil.log( gutil.colors.red( PLUGIN_NAME + ':' ), msg );
-}
+//function logError ( msg ){
+//    
+//    gutil.log( gutil.colors.red( PLUGIN_NAME + ':' ), msg );
+//}
 
 function logInfo ( msg ){
 	
@@ -122,16 +122,16 @@ function gulpInjectDependences( options ) {
         log( 'injecting ' + relativePath );
 
         if( ast.body[0].type != 'ExpressionStatement'  ){
-            logError( 'module must begin with define call ' +  logName );
-            return;
+            logInfo( 'module must begin with define call ' +  logName );
+            return callback( null, file );
         }
         
         
         // 找到define 函数调用
         var defineExp = ast.body[0].expression;
         if( !isCallExp( defineExp , 'define' ) ){
-            logError( 'cannot find define call in ' +  logName );
-            return;
+            logInfo( 'cannot find define call in ' +  logName );
+            return callback( null, file );
         }
         
         
