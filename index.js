@@ -5,6 +5,7 @@ var path        = require('path');
 var esprima     = require('esprima');
 var escodegen   = require('escodegen');
 var htmlclean   = require('htmlclean');
+var minifyCss   = require('clean-css');
 var through     = require('through2');
 var gutil       = require('gulp-util');
 
@@ -87,17 +88,19 @@ function gulpInjectDependences( options ) {
     var defaultOptions = {
         
         htmlClean: options.htmlClean || {},
+        cssClean: options.cssClean || {},
         lookupMode: 'cwd', // 'cwd', 'relative'
         baseUrl: options.baseUrl || '/'
     };
     
-    log( 'Starting ' + gutil.colors.magenta( "'inject text dependences'") + ' ...' );
-    log( 'using lookupMode: ' + defaultOptions.lookupMode );
-    log( 'using baseUrl: ' + defaultOptions.baseUrl );
+    var cssclern = new minifyCss( defaultOptions.cssClean );
+    
+    log( 'Starting ' + gutil.colors.magenta( "'injecting dependences'") + ' ...' );
+    //log( 'using lookupMode: ' + defaultOptions.lookupMode );
+    //log( 'using baseUrl: ' + defaultOptions.baseUrl );
     
     return through.obj(function( file, encoding, callback ) {
     
-        
         if ( file.isNull() || file.isDirectory() ) {
             
             return callback( null, file );
@@ -109,7 +112,6 @@ function gulpInjectDependences( options ) {
         }
         
         // use replace to handle the case that there is subfolder under viewsDir.
-        
         var fileDir      = path.dirname( file.path );
         var relativePath = file.path.replace( cwd, '' );
         var logName      = gutil.colors.magenta( relativePath );
@@ -124,12 +126,14 @@ function gulpInjectDependences( options ) {
             return;
         }
         
+        
         // 找到define 函数调用
         var defineExp = ast.body[0].expression;
         if( !isCallExp( defineExp , 'define' ) ){
             logError( 'cannot find define call in ' +  logName );
             return;
         }
+        
         
         var defineArgs = defineExp.arguments;
         var depArr = [], func;
@@ -153,7 +157,6 @@ function gulpInjectDependences( options ) {
                 func = arg_temp;
             }
         }
-        
         if( !depArr || !depArr.elements.length ){
             
             logInfo( 'no dependences found in ' + logName );
@@ -163,8 +166,9 @@ function gulpInjectDependences( options ) {
         var deps_elements = depArr.elements;
         var func_params   = func.params;
         var inject_codes  = [];
-
-        // 找到 html 依赖, 并移除
+        
+        var new_deps_element = [], new_func_aprams = [];
+        // 找到依赖, 并移除
         for( var k=0; k < deps_elements.length; k++ ){
 
             var templateName = '', 
@@ -174,39 +178,44 @@ function gulpInjectDependences( options ) {
                 templateName = RegExp.$1;
             }
             else{
+                new_deps_element.push( dep_temp );
+                new_func_aprams.push( func_params[ k ] );
                 continue;
             }
-            
-             // 移除 html 依赖
-            deps_elements = deps_elements.filter(function(v,idx){
-                return idx != k;
-            })
-
-            defineExp.arguments[depsArr_index].elements = deps_elements;
 
             // 获取回调参数名称
-            var param_name = func_params[ k ].name;
-
-            // console.log( func_params );
-            // 移除回调参数名称
-            func_params = func_params.filter(function(v,idx){
-                return idx != k;
-            });
-
-            defineExp.arguments[ func_index ].params = func_params;
+            var param_name = func_params[ k ].name, depPath;
             
-            var html_text = fs.readFileSync( path.join( (mode == 0 ? tplDir : defaultOptions.baseUrl), templateName ) ) || '';			
-			html_text = htmlclean( html_text.toString(), defaultOptions.htmlClean );
+            if( defaultOptions.lookupMode == 'cwd' ){
+                depPath = path.join( fileDir, templateName );
+            }
+            else{
+                depPath = path.join( defaultOptions.baseUrl, templateName );
+            }
             
-            var inject_code = buildDecExp( param_name, html_text );
-
+            var text    = fs.readFileSync( depPath ) || '';
+            var extName = path.extname( templateName );
+            
+            if( /html$/i.test( extName ) ){
+                text = htmlclean( text.toString(), defaultOptions.htmlClean );
+            }
+            else if( /css$/i.test( extName ) ){
+                text = cssclern.minify( text ).styles;
+            }
+            
+            var inject_code = buildDecExp( param_name, text );
             inject_codes.push( inject_code );
         }
+        
+        defineExp.arguments[ depsArr_index].elements = new_deps_element;
+        defineExp.arguments[ func_index   ].params   = new_func_aprams;
 
         if( inject_codes.length > 0 ){
             
             var func_body = func.body.body;
-            if( /use strict/i.test( func_body[0].expression.value ) ){
+            
+            if( func_body[0].type == 'ExpressionStatement' 
+               && /use strict/i.test( func_body[0].expression.value ) ){
 
                 var tempArr = [];
 
