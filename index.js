@@ -13,6 +13,14 @@ var PluginError = gutil.PluginError;
 
 // Consts
 var PLUGIN_NAME = 'gulp-inject-deps';
+
+
+// expression type Enum
+var EXP_ENUM = {
+    Expression:'ExpressionStatement',
+    ArrayExp: 'ArrayExpression',
+    FunExp:'FunctionExpression'
+};
     
 function isCallExp( exp , methodName ){
 
@@ -121,19 +129,12 @@ function gulpInjectDependences( options ) {
         
         log( 'injecting ' + relativePath );
 
-        if( ast.body[0].type != 'ExpressionStatement'  ){
-            logInfo( 'module must begin with define call ' +  logName );
-            return callback( null, file );
-        }
-        
-        
         // 找到define 函数调用
         var defineExp = ast.body[0].expression;
-        if( !isCallExp( defineExp , 'define' ) ){
-            logInfo( 'cannot find define call in ' +  logName );
+        if( ast.body[0].type != EXP_ENUM.Expression || !isCallExp( defineExp , 'define' ) ){
+            logInfo( 'Ignored, no "define" call：' +  logName );
             return callback( null, file );
         }
-        
         
         var defineArgs = defineExp.arguments;
         var depArr = [], func;
@@ -144,14 +145,14 @@ function gulpInjectDependences( options ) {
             var arg_temp = defineArgs[j];
 
             // 找到依赖数组
-            if( arg_temp.type == 'ArrayExpression' ){
+            if( arg_temp.type == EXP_ENUM.ArrayExp ){
 
                 depsArr_index = j;
                 depArr = arg_temp;
             }
 
             // 找出函数
-            if( arg_temp.type == 'FunctionExpression' ){
+            if( arg_temp.type == EXP_ENUM.FunExp ){
 
                 func_index = j;
                 func = arg_temp;
@@ -159,7 +160,7 @@ function gulpInjectDependences( options ) {
         }
         if( !depArr || !depArr.elements.length ){
             
-            logInfo( 'no dependences found in ' + logName );
+            logInfo( 'Ignored, no dependences：' + logName );
             return callback( null, file );
         }
 
@@ -214,7 +215,7 @@ function gulpInjectDependences( options ) {
             
             var func_body = func.body.body;
             
-            if( func_body[0].type == 'ExpressionStatement' 
+            if( func_body[0].type == EXP_ENUM.Expression
                && /use strict/i.test( func_body[0].expression.value ) ){
 
                 var tempArr = [];
