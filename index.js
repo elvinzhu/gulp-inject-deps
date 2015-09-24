@@ -72,11 +72,6 @@ function buildDecExp ( name, value ){
     }
 };
 
-//function logError ( msg ){
-//    
-//    gutil.log( gutil.colors.red( PLUGIN_NAME + ':' ), msg );
-//}
-
 function logInfo ( msg ){
 	
     gutil.log( gutil.colors.yellow( PLUGIN_NAME + ':' ) , msg);
@@ -97,15 +92,13 @@ function gulpInjectDependences( options ) {
         
         htmlClean: options.htmlClean || {},
         cssClean: options.cssClean || {},
-        lookupMode: 'cwd', // 'cwd', 'relative'
-        baseUrl: options.baseUrl || '/'
+        lookupMode: options.lookupMode || 'cwd', // 'cwd', 'relative'
+        baseUrl: options.baseUrl || './'
     };
     
     var cssclern = new minifyCss( defaultOptions.cssClean );
     
     log( 'Starting ' + gutil.colors.magenta( "'injecting dependences'") + ' ...' );
-    //log( 'using lookupMode: ' + defaultOptions.lookupMode );
-    //log( 'using baseUrl: ' + defaultOptions.baseUrl );
     
     return through.obj(function( file, encoding, callback ) {
     
@@ -188,7 +181,7 @@ function gulpInjectDependences( options ) {
             var param_name = func_params[ k ].name, depPath;
             
             if( defaultOptions.lookupMode == 'cwd' ){
-                depPath = path.join( fileDir, templateName );
+                depPath = path.join( fileDir, path.basename( templateName ) );
             }
             else{
                 depPath = path.join( defaultOptions.baseUrl, templateName );

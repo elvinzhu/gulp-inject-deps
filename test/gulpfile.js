@@ -3,7 +3,6 @@
 
 var gulp = require('gulp');
 var path = require( 'path' );
-var replace = require('gulp-replace');
 var injectDeps = require('../index');
 
 
@@ -20,7 +19,31 @@ gulp.task('default', function(){
 //    
 //    return;
     
-	return gulp.src('./component/**/*.js')
+	return gulp.src(['./component/**/*.js','!./component/index-r.js'])
 		.pipe( injectDeps() )
+		.pipe(gulp.dest('./result'));
+});
+
+gulp.task('relative', function(){
+	
+	return gulp.src(['./component/**/*.js','!./component/index-r.js'])
+		.pipe( injectDeps({
+            //htmlClean: {},
+            //cssClean: {},
+            lookupMode: 'relative',    //default: 'cwd' (current directory of the js file)
+            baseUrl: './component' // relative to process.cwd()
+         }))
+		.pipe(gulp.dest('./result'));
+});
+
+gulp.task('relative1', function(){
+	
+	return gulp.src('./component/index-r.js')
+		.pipe( injectDeps({
+            //htmlClean: {},
+            //cssClean: {},
+            lookupMode: 'relative'    //default: 'cwd' (current directory of the js file)
+            // baseUrl: './component' // relative to process.cwd()
+         }))
 		.pipe(gulp.dest('./result'));
 });
