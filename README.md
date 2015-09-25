@@ -67,3 +67,7 @@ gulp.task('default', function(){
 ## demo
 
   Refer to test folder
+
+## note
+
+* You AMD module must start with `define`, namely please DO NOT put any code before your `define`
