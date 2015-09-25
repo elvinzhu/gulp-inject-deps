@@ -11,12 +11,14 @@ define( 'blabla', [ 'text!./tpl.html', 'text!./style.css'], function( Html, Css 
 ```
 After processed by `gulp-inject-deps`
 ```
-define( 'blabla', [ ], function( Html, Css ){
+define( 'blabla', [ ], function(  ){
 
     var Html = 'file content';
     var Css  = 'file content'
+    
     // add the Css to document.head via style tag
     // render your Html
+    
 } )
 ```
 
@@ -32,12 +34,12 @@ var injectDeps = require( 'gulp-inject-deps' );
 gulp.task('default', function(){
 	return gulp.src(['./components/**/*.js'])
 		.pipe( injectDeps({
-            //htmlClean: {},
-            //cssClean: {},
-            lookupMode: 'relative',    //default: 'cwd' (current directory of the js file)
-            baseUrl: './component'     // relative to process.cwd()
-         }))
-		.pipe(gulp.dest('./result'));
+	    //htmlClean: {},
+	    //cssClean: {},
+	    lookupMode: 'cwd'    //default: 'cwd' (current directory of the js file)
+	    // baseUrl: './component'     // relative to process.cwd()
+	 }))
+	.pipe(gulp.dest('./result'));
 });
 
 ```
