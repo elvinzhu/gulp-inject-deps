@@ -46,10 +46,14 @@ gulp.task('default', function(){
 ## options
 * `htmlClean`
 
+  config options for [htmlclean](https://github.com/anseki/htmlclean) 
+ 
  `gulp-inject-deps` use [htmlclean](https://github.com/anseki/htmlclean) to minify your html file
 
 * `cssClean`
 
+   config options for [clean-css](https://github.com/jakubpawlowicz/clean-css) 
+   
   `gulp-inject-deps` use [clean-css](https://github.com/jakubpawlowicz/clean-css) to minify your css file
   
 * `lookupMode`
@@ -70,4 +74,4 @@ gulp.task('default', function(){
 
 ## note
 
-* You AMD module must start with `define`, namely please DO NOT put any code before your `define`
+* Your AMD module must start with `define`, namely please DO NOT put any code before your `define`
