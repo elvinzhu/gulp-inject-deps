@@ -118,7 +118,15 @@ function gulpInjectDependences( options ) {
         var logName      = gutil.colors.magenta( relativePath );
         
         var code     = file.contents.toString();
-        var ast      = esprima.parse( code );
+        var ast;
+		
+		try{
+			ast = esprima.parse( code );
+		}catch(err){	
+            return callback(new gutil.PluginError( PLUGIN_NAME, err, {
+                fileName: file.path, 
+            }));
+		}
         
         log( 'injecting ' + relativePath );
 

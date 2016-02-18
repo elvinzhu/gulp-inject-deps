@@ -1,6 +1,6 @@
 {
   "name": "gulp-inject-deps",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Transfor your AMD dependences to inline variables",
   "main": "index.js",
   "directories": {
